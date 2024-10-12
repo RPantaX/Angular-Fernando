@@ -1,0 +1,18 @@
+<div class="d-flex justify-content-center">
+  <img
+  [src]="src"
+  [alt]="alt"
+  class="animate__animated animate__bounce__faceIn"
+  (load)="onLoad()"
+  [ngStyle]="{display: hasLoader ? '' : 'none'}"
+  >
+
+
+<img
+  *ngIf="!hasLoader"
+  src="assets/three-dots.svg"
+  height="35"
+  width="35"
+  class="mt-3">
+
+</div>
