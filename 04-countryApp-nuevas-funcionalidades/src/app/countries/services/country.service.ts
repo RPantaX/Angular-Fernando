@@ -16,13 +16,24 @@ export class CountriesService {
     byRegion: {region: '', countries:[]},
   }
 
-  constructor(private httpClient: HttpClient) { }
+  constructor(private httpClient: HttpClient) {
+    this.loadFromLocalStorage()
+  }
+
+  private saveToLocalStorage(){
+    localStorage.setItem('cacheStore', JSON.stringify(this.cacheStore));
+  }
+  private loadFromLocalStorage(){
+    if(!localStorage.getItem('cacheStore')) return;
+    this.cacheStore = JSON.parse(localStorage.getItem('cacheStore')!);
+  }
+
   //Los metodos http cuando llamamos a los get, delete, etc. ya saben cuando desuscripirse, no hace falta cerrar o destruir nada.-
   private getCountriesRequest(url:string) : Observable<Country[]>{
     return this.httpClient.get<Country[]>(url)
     .pipe( //usamos pipe para enviarle un arreglo vacio y pueda renderizar nuestro html
       catchError(()=>of([])),
-      delay( 2000 ) //para poder integrar una pantalla de carga, 2s
+      delay( 1000 ) //para poder integrar una pantalla de carga, 2s
     );
   }
 
@@ -39,7 +50,9 @@ export class CountriesService {
     const url: string = `${this.apiUrl}/capital/${term}`;
     return this.getCountriesRequest(url)
     .pipe(
-      tap(countries => this.cacheStore.byCapital={term, countries})
+      tap(countries => this.cacheStore.byCapital={term, countries}),
+      tap(()=>this.saveToLocalStorage()),
+      tap()
     );
   }
 
@@ -47,7 +60,8 @@ export class CountriesService {
     const url: string = `${this.apiUrl}/name/${term}`;
     return this.getCountriesRequest(url)
     .pipe(
-      tap(countries=>this.cacheStore.byCountries={term, countries})
+      tap(countries=>this.cacheStore.byCountries={term, countries}),
+      tap(()=>this.saveToLocalStorage()),
     );
 
 
@@ -57,7 +71,8 @@ export class CountriesService {
     const url: string = `${this.apiUrl}/region/${region}`;
     return this.getCountriesRequest(url)
     .pipe(
-      tap(countries=>this.cacheStore.byRegion={region, countries})
+      tap(countries=>this.cacheStore.byRegion={region, countries}),
+      tap(()=>this.saveToLocalStorage()),
     );
   }
 
